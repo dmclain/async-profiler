@@ -415,6 +415,7 @@ class Recording {
     bool _cpu_monitor_enabled;
     Buffer _cpu_monitor_buf;
     CpuTimes _last_times;
+    Arguments _args;
 
     void cpuMonitorCycle() {
         if (!_cpu_monitor_enabled) return;
@@ -514,6 +515,8 @@ class Recording {
         _start_ticks = TSC::ticks();
         _base_id = 0;
         _bytes_written = 0;
+
+        _args = args;
 
         _chunk_size = args._chunk_size <= 0 ? MAX_JLONG : (args._chunk_size < 262144 ? 262144 : args._chunk_size);
         _chunk_time = args._chunk_time <= 0 ? MAX_JLONG : (args._chunk_time < 5 ? 5 : args._chunk_time) * 1000000ULL;
@@ -1015,7 +1018,7 @@ class Recording {
 
     void writeStackTraces(Buffer* buf, Lookup* lookup) {
         std::map<u32, CallTrace*> traces;
-        Profiler::instance()->_call_trace_storage.collectTraces(traces);
+        Profiler::instance()->dumpTracesNative(traces);
 
         buf->putVar32(T_STACK_TRACE);
         buf->putVar32(traces.size());

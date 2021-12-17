@@ -1215,6 +1215,26 @@ void Profiler::switchThreadEvents(jvmtiEventMode mode) {
 }
 
 /*
+ * The semantics of this are a little odd, the FlightRecorder grabs the data while
+ * other output methods actually dump from here. The logic for excluding traces for all other formats
+ * is executed in a dump method, so the FlightRecorder logic is here too.
+ */
+void Profiler::dumpTracesNative(std::map<u32, CallTrace*>& traces, Arguments& args) {
+    FrameName fn(args, args._style, _thread_names_lock, _thread_names);
+
+    _call_trace_storage.collectTraces(traces);
+
+    for (std::map<u32, CallTrace*>::const_iterator it = traces.begin(); it != traces.end(); ) {
+        CallTrace* trace = it->second;
+        if (excludeTrace(&fn, trace)) {
+            traces.erase(it++);
+        } else {
+            ++it;
+        }
+    }
+}
+
+/*
  * Dump stacks in FlameGraph input format:
  * 
  * <frame>;<frame>;...;<topmost frame> <count>

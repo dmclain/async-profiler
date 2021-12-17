@@ -159,6 +159,7 @@ class Profiler {
     void lockAll();
     void unlockAll();
 
+    void dumpTracesNative(std::map<u32, CallTrace*>& traces, Arguments& args);
     void dumpCollapsed(std::ostream& out, Arguments& args);
     void dumpFlameGraph(std::ostream& out, Arguments& args, bool tree);
     void dumpText(std::ostream& out, Arguments& args);
